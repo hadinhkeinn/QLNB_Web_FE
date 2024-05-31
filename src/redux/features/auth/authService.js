@@ -106,9 +106,17 @@ const getUsers = async () => {
 
   return response.data;
 };
+
+// Get User By Id
+const getUserById = async (id) => {
+  const response = await axios.get(API_URL + `getUserByID/${id}`);
+
+  return response.data;
+};
+
 // Delete User
 const deleteUser = async (id) => {
-  const response = await axios.delete(API_URL + id);
+  const response = await axios.delete(`${API_URL}deleteUser/${id}`);
 
   return response.data.message;
 };
@@ -167,6 +175,7 @@ const authService = {
   logout,
   getLoginStatus,
   getUser,
+  getUserById,
   update,
   updateUser,
   sendVerificationEmail,

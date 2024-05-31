@@ -5,6 +5,7 @@ import authService from "./authService";
 const initialState = {
   isLoggedIn: false,
   user: null,
+  user_select: null,
   users: [],
   isError: false,
   isSuccess: false,
@@ -92,6 +93,23 @@ export const getUser = createAsyncThunk("auth/getUser", async (_, thunkAPI) => {
   }
 });
 
+// Get User by ID
+export const getUserById = createAsyncThunk(
+  "auth/getUserById",
+  async (id, thunkAPI) => {
+    try {
+      return await authService.getUserById(id);
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+
+  }
+);
+
 // Update User for User
 export const update = createAsyncThunk(
   "auth/update",
@@ -109,6 +127,24 @@ export const update = createAsyncThunk(
     }
   }
 );
+// Update user for admin
+export const updateUser = createAsyncThunk(
+  "auth/updateUser",
+  async ({ id, userData }, thunkAPI) => {
+    try {
+      return await authService.updateUser(id, userData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Update Photo
 export const updatePhoto = createAsyncThunk(
   "auth/updatePhoto",
@@ -151,6 +187,24 @@ export const getUsers = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       return await authService.getUsers();
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// delete User
+export const deleteUser = createAsyncThunk(
+  "auth/deleteUser",
+  async (id, thunkAPI) => {
+    try {
+      return await authService.deleteUser(id);
     } catch (error) {
       const message =
         (error.response &&
@@ -231,7 +285,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Register User
+      // create User
       .addCase(create.pending, (state) => {
         state.isLoading = true;
       })
@@ -247,7 +301,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        state.user = null;
+        // state.user = null;
         toast.error(action.payload);
       })
       // Login User
@@ -322,8 +376,23 @@ const authSlice = createSlice({
         state.message = action.payload;
         toast.error(action.payload);
       })
+      // Get User by ID
+      .addCase(getUserById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getUserById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user_select = action.payload;
+      })
+      .addCase(getUserById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
 
-      // Update user
+      // Update user for user
       .addCase(update.pending, (state) => {
         state.isLoading = true;
       })
@@ -340,6 +409,23 @@ const authSlice = createSlice({
         state.message = action.payload;
         toast.error(action.payload);
       })
+      // Update user for admin
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user_select = action.payload;
+        toast.success("Cập nhật thông tin thành công!");
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
+
       // Update pHOTO
       .addCase(updatePhoto.pending, (state) => {
         state.isLoading = true;
@@ -357,7 +443,22 @@ const authSlice = createSlice({
         state.message = action.payload;
         toast.error(action.payload);
       })
-
+      // delete User
+      .addCase(deleteUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = action.payload;
+        toast.success(action.payload);
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
       // change Password
       .addCase(changePassword.pending, (state) => {
         state.isLoading = true;
@@ -444,6 +545,7 @@ export const { RESET_AUTH } = authSlice.actions;
 
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
 export const selectUser = (state) => state.auth.user;
+export const selectUserToEdit = (state) => state.auth.user_select;
 export const selectWishlist = (state) => state.auth.wishlist;
 export const selectIsLoading = (state) => state.auth.isLoading;
 
