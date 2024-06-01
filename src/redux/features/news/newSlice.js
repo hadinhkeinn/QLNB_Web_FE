@@ -27,6 +27,23 @@ export const getNews = createAsyncThunk(
     }
 );
 
+export const addNew = createAsyncThunk(
+    "news/addNew",
+    async (newData, thunkAPI) => {
+        try {
+            return await newService.addNew(newData);
+        } catch (error) {
+            const message =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+);
+
 const newSlice = createSlice({
     name: "news",
     initialState,
@@ -45,6 +62,22 @@ const newSlice = createSlice({
                 state.news = action.payload;
             })
             .addCase(getNews.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.message = action.payload;
+                toast.error(action.payload);
+            })
+            // add news
+            .addCase(addNew.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(addNew.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.news.push(action.payload);
+                toast.success("Thêm tin tức thành công");
+            })
+            .addCase(addNew.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.message = action.payload;

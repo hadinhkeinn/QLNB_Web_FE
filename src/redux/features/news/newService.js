@@ -8,8 +8,14 @@ const getNews = async () => {
     return response.data;
 };
 
+const addNew = async (newData) => {
+    const response = await axios.post(API_URL + "create", newData);
+    return response.data;
+};
+
 const newService = {
     getNews,
+    addNew,
 };
 
 export default newService;
