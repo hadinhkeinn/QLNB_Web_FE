@@ -5,6 +5,7 @@ import { AiOutlineUser } from "react-icons/ai";
 import { BsNewspaper } from "react-icons/bs";
 import { FaBell } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import { getUsers } from "../../../redux/features/auth/authSlice";
 
 //Icons
 const userIcon = <AiOutlineUser size={30} color="#b624ff" />;
@@ -13,7 +14,12 @@ const notifiIcon = <FaBell size={30} color="orangered" />;
 
 const Home = () => {
   const dispatch = useDispatch();
-
+  const users = useSelector((state) => state.auth.users);
+  useEffect(() => {
+    if (users.length === 0) {
+      dispatch(getUsers());
+    }
+  }, [dispatch, users]);
   return (
     <div className={styles.home}>
       <h2>Trang chủ</h2>
@@ -21,7 +27,7 @@ const Home = () => {
         <InfoBox
           cardClass={`${styles.card} ${styles.card1}`}
           title={"Nhân viên"}
-          count={`${3}`}
+          count={`${users.length}`}
           icon={userIcon}
         />
         <InfoBox
